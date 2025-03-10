@@ -1,0 +1,13 @@
+﻿<Window x:Class="Product_Categorization.AddCategoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Add Category" Height="200" Width="250" ResizeMode="NoResize"
+WindowStartupLocation="CenterScreen">
+    <Grid>
+        <StackPanel Margin="20">
+            <TextBlock Text="Enter Category Name:" FontSize="16"/>
+            <TextBox Name="CategoryTextBox" Margin="0,5" Height="35" FontSize="22"/>
+            <Button Content="Add Category" Click="AddCategory_Click" Height="36"/>
+        </StackPanel>
+    </Grid>
+</Window>

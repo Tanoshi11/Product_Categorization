@@ -1,0 +1,52 @@
+﻿<Window x:Class="Product_Categorization.AddItemWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Add Item" Height="500" Width="500" ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Select Category Dropdown -->
+        <TextBlock Grid.Row="0" Text="Select Category:" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+        <ComboBox x:Name="CategoryComboBox" Grid.Row="1" Margin="0,0,0,20" FontSize="14" Padding="5">
+            <ComboBox.ToolTip>
+                <ToolTip>Choose a category</ToolTip>
+            </ComboBox.ToolTip>
+        </ComboBox>
+
+        <!-- Description Text -->
+        <TextBlock Grid.Row="2" Text="Search Items:" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+
+        <!-- Input TextBox -->
+        <TextBox x:Name="ItemTextBox" Grid.Row="3" Margin="0,0,0,20" Padding="5" FontSize="14" Text="Type to search..." Foreground="Gray"
+                 GotFocus="ItemTextBox_GotFocus" LostFocus="ItemTextBox_LostFocus"/>
+
+        <!-- Search Results List -->
+        <ListBox x:Name="SearchResultsListBox" Grid.Row="4" Margin="0,0,0,20" FontSize="14">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}" FontSize="14"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            <!-- Placeholder Items -->
+            <ListBoxItem Content="SAMPLE T1"/>
+            <ListBoxItem Content="SAMPLE T2"/>
+            <ListBoxItem Content="SAMPLE T3"/>
+            <ListBoxItem Content="SAMPLE T4"/>
+            <ListBoxItem Content="SAMPLE T5"/>
+        </ListBox>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="AddButton" Content="Add" Width="100" Margin="0,0,10,0" Padding="10,5" FontSize="14" Click="AddButton_Click"/>
+            <Button x:Name="CancelButton" Content="Cancel" Width="100" Padding="10,5" FontSize="14" Click="CancelButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
