@@ -2,6 +2,7 @@ using System;
 using System.Data.SqlClient;
 using System.Windows;
 using System.Windows.Controls;
+using System.Collections.ObjectModel;
 
 namespace Product_Categorization
 {
@@ -10,12 +11,15 @@ namespace Product_Categorization
         private readonly string connectionString = "Server=LAPTOP-CERQCNC0;Database=ProductManagementDB;Integrated Security=True;";
         public bool ItemAdded { get; private set; } = false;
 
+        public ObservableCollection<Item> Items { get; set; } = new ObservableCollection<Item>();
+
         public AddItemWindow()
         {
             InitializeComponent();
             LoadCategories();
+            LoadPlaceholderData();
 
-            // Initialize placeholder text for the search box
+            // Ensure placeholder text in search box
             ItemTextBox_LostFocus(null, null);
         }
 
@@ -44,39 +48,57 @@ namespace Product_Categorization
             }
         }
 
+        private void LoadPlaceholderData()
+        {
+            Items.Add(new Item { ItemName = "Sample Item 1", Description = "This is the description for Sample Item 1." });
+            Items.Add(new Item { ItemName = "Sample Item 2", Description = "This is the description for Sample Item 2." });
+            Items.Add(new Item { ItemName = "Sample Item 3", Description = "This is the description for Sample Item 3." });
+
+            SearchResultsDataGrid.ItemsSource = Items;
+        }
+
+        private void SearchResultsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (SearchResultsDataGrid.SelectedItem is Item selectedItem)
+            {
+                // Update the description TextBox with the selected item's description
+                itemDescriptionTextBlock.Text = string.IsNullOrWhiteSpace(selectedItem.Description)
+                    ? "No description available."
+                    : selectedItem.Description;
+            }
+        }
+
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            string selectedItem = SearchResultsListBox.SelectedItem?.ToString();
-            string selectedCategory = CategoryComboBox.SelectedItem?.ToString();
-
-            if (string.IsNullOrWhiteSpace(selectedItem) || string.IsNullOrWhiteSpace(selectedCategory))
+            if (SearchResultsDataGrid.SelectedItem is Item selectedItem && CategoryComboBox.SelectedItem is string selectedCategory)
             {
-                MessageBox.Show("Please select an item and a category.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(connectionString))
+                try
                 {
-                    conn.Open();
-                    string query = "INSERT INTO Items (Item_Name, Category_Name) VALUES (@ItemName, @CategoryName);";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlConnection conn = new SqlConnection(connectionString))
                     {
-                        cmd.Parameters.AddWithValue("@ItemName", selectedItem);
-                        cmd.Parameters.AddWithValue("@CategoryName", selectedCategory);
-                        cmd.ExecuteNonQuery();
-                    }
+                        conn.Open();
+                        string query = "INSERT INTO Items (Item_Name, Category_Name) VALUES (@ItemName, @CategoryName);";
 
-                    MessageBox.Show("Item added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                    ItemAdded = true;
-                    this.Close();
+                        using (SqlCommand cmd = new SqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@ItemName", selectedItem.ItemName);
+                            cmd.Parameters.AddWithValue("@CategoryName", selectedCategory);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        MessageBox.Show("Item added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                        ItemAdded = true;
+                        this.Close();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error adding item: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show("Error adding item: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Please select an item and a category.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -85,7 +107,6 @@ namespace Product_Categorization
             this.Close();
         }
 
-        // Placeholder text logic for the search box
         private void ItemTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
             if (ItemTextBox.Text == "Type to search...")
@@ -103,5 +124,11 @@ namespace Product_Categorization
                 ItemTextBox.Foreground = SystemColors.GrayTextBrush;
             }
         }
+    }
+
+    public class Item
+    {
+        public string ItemName { get; set; }
+        public string Description { get; set; }
     }
 }

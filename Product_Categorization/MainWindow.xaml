@@ -10,48 +10,83 @@
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
-        <!-- Global Style for Rounded Buttons -->
+        <!-- Global Style for Rounded Buttons with Hover Effect -->
         <Style x:Key="RoundedButton" TargetType="Button">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FFC5C5C5"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border CornerRadius="20" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="2">
+                        <Border x:Name="border" CornerRadius="20" 
+                            Background="{TemplateBinding Background}" 
+                            BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="2">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <!-- Hover Effect -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#f0f1f2"/>
+                                <!-- Light Blue -->
+                                <Setter TargetName="border" Property="BorderBrush" Value="LightGray"/>
+                                <!-- Darker Blue -->
+                                <Setter Property="Foreground" Value="Black"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-    </Window.Resources>
+        </Window.Resources>
 
-    <Grid Background="#FF9E9E9E">
+
+
+        <Grid Background="#FF9E9E9E">
         <!-- Left Panel for Categories -->
-        <Rectangle x:Name="category_filter_container" HorizontalAlignment="Left" Height="628" Margin="28,0,0,0" VerticalAlignment="Center" Width="297" Fill="#FFEDEDED"/>
+        <Rectangle x:Name="category_filter_container" HorizontalAlignment="Left" Height="628" Margin="28,0,0,0" VerticalAlignment="Center" Width="297" Fill="#FFEDEDED" Stroke="#FFE2DEDE"/>
 
-        <TextBlock x:Name="category_name_input" HorizontalAlignment="Left" Margin="44,60,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="40" Width="261" TextAlignment="Center" FontWeight="Bold" FontSize="30" Text="CATEGORY TYPE"/>
+        <TextBlock x:Name="category_name_input" HorizontalAlignment="Left" Margin="44,65,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="40" Width="261" TextAlignment="Center" FontWeight="Bold" FontSize="28" FontFamily="Century Gothic"><Run Text="CATEGORY"/><Run Language="en-ph" Text=" TYPE"/></TextBlock>
 
-        <Button x:Name="add_category" Content="ADD CATEGORY" HorizontalAlignment="Left" Margin="44,124,0,0" VerticalAlignment="Top" Height="40" Width="117" Click="add_category_Click" Background="White" Foreground="#FFA0D94E" FontWeight="Bold" FontSize="11" Style="{StaticResource RoundedButton}"/>
-        <Button x:Name="remove_category" Content="REMOVE CATEGORY" HorizontalAlignment="Left" Margin="188,124,0,0" VerticalAlignment="Top" Height="40" Width="117" Click="remove_category_Click" Foreground="#FFF16767" Background="White" FontWeight="Bold" FontSize="11" Style="{StaticResource RoundedButton}"/>
+        <Button x:Name="add_category" Content="      ADD &#xD;&#xA;CATEGORY" HorizontalAlignment="Left" Margin="48,117,0,0" VerticalAlignment="Top" Height="40" Width="117" Click="add_category_Click" Background="White" Foreground="#FFA0D94E" FontWeight="Bold" FontSize="11" Style="{StaticResource RoundedButton}" BorderBrush="#FFC5C5C5" FontFamily="Century Gothic">
+            <Button.Effect>
+                <DropShadowEffect/>
+            </Button.Effect>
+        </Button>
+        <Button x:Name="remove_category" Content="  REMOVE &#xD;&#xA;CATEGORY" HorizontalAlignment="Left" Margin="184,117,0,0" VerticalAlignment="Top" Height="40" Width="117" Click="remove_category_Click" Foreground="#FFF16767" Background="White" FontWeight="Bold" FontSize="11" Style="{StaticResource RoundedButton}" BorderBrush="#FFC5C5C5" FontFamily="Century Gothic">
+            <Button.Effect>
+                <DropShadowEffect/>
+            </Button.Effect>
+        </Button>
 
-        <ListBox Name="lists_of_category" Foreground="Black" Margin="44,190,0,64" 
+        <ListBox Name="lists_of_category" Foreground="Black" Margin="46,173,0,64" 
                  HorizontalAlignment="Left" Width="261" FontSize="20" 
-                 Background="{x:Null}" SelectionChanged="lists_of_category_SelectionChanged"/>
+                 Background="White" SelectionChanged="lists_of_category_SelectionChanged" BorderBrush="#FF9B9DA1" FontFamily="Century Gothic"/>
 
         <!-- Right Panel for Items -->
-        <Rectangle HorizontalAlignment="Left" Height="628" Stroke="Black" VerticalAlignment="Center" Width="606" Margin="348,0,0,0" Fill="#FFEDEDED"/>
+        <Rectangle HorizontalAlignment="Left" Height="628" Stroke="#FFE2DEDE" VerticalAlignment="Center" Width="606" Margin="340,0,0,0" Fill="#FFEDEDED"/>
 
-        <TextBlock x:Name="selectedCategoryTextBlock" HorizontalAlignment="Left" Margin="375,72,0,0" 
-                   TextWrapping="Wrap" VerticalAlignment="Top" Height="37" Width="215" 
-                   TextAlignment="Center" FontWeight="Bold" FontSize="27" Text="CATEGORY TYPE"/>
+        <TextBlock x:Name="selectedCategoryTextBlock" HorizontalAlignment="Left" Margin="366,79,0,0" 
+                   TextWrapping="Wrap" VerticalAlignment="Top" Height="42" Width="285" 
+                   TextAlignment="Center" FontWeight="Bold" FontSize="26" Text="&lt;SELECT CATEGORY&gt;" FontFamily="Century Gothic"/>
 
-        <Button x:Name="add_item" Content="ADD ITEM" HorizontalAlignment="Left" Margin="630,73,0,0" VerticalAlignment="Top" Height="40" Width="117" Click="add_item_Click" Foreground="#FFA0D94E" FontWeight="Bold" Background="White" Style="{StaticResource RoundedButton}"/>
-        <Button x:Name="remove_item" Content="REMOVE ITEM" HorizontalAlignment="Left" Margin="786,73,0,0" VerticalAlignment="Top" Height="40" Width="117" Click="remove_item_Click" Background="White" Foreground="#FFF16767" FontWeight="Bold" FontSize="13" Style="{StaticResource RoundedButton}"/>
+        <Button x:Name="add_item" Content="ADD ITEM" HorizontalAlignment="Left" Margin="650,77,0,0" VerticalAlignment="Top" Height="40" Width="125" Click="add_item_Click" Foreground="#FFA0D94E" FontWeight="Bold" Background="White" Style="{StaticResource RoundedButton}" BorderBrush="#FFC5C5C5" FontSize="13" FontFamily="Century Gothic">
+            <Button.Effect>
+                <DropShadowEffect/>
+            </Button.Effect>
+        </Button>
+        <Button x:Name="remove_item" Content="REMOVE ITEM" HorizontalAlignment="Left" Margin="789,77,0,0" VerticalAlignment="Top" Height="40" Width="125" Click="remove_item_Click" Background="White" Foreground="#FFF16767" FontWeight="Bold" FontSize="13" Style="{StaticResource RoundedButton}" BorderBrush="#FFC5C5C5" FontFamily="Century Gothic">
+            <Button.Effect>
+                <DropShadowEffect/>
+            </Button.Effect>
+        </Button>
 
-        <ListView x:Name="list_of_items_on_category" Margin="376,139,54,64" SelectionChanged="list_of_items_on_category_SelectionChanged" FontSize="20">
+        <ListView x:Name="list_of_items_on_category" Margin="370,128,50,62" SelectionChanged="list_of_items_on_category_SelectionChanged" FontSize="20" Foreground="#FFC9CDD9" FontFamily="Century Gothic">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="ID" DisplayMemberBinding="{Binding Name}" Width="50"/>
-                    <GridViewColumn Header="Item Name" DisplayMemberBinding="{Binding Name}" Width="200"/>
+                    <GridViewColumn Header="ID" DisplayMemberBinding="{Binding Name}" Width="70"/>
+                    <GridViewColumn Header="Item Name" DisplayMemberBinding="{Binding Name}" Width="210"/>
                     <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}" Width="280"/>
                 </GridView>
             </ListView.View>

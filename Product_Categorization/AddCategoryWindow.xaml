@@ -5,9 +5,9 @@
 WindowStartupLocation="CenterScreen">
     <Grid>
         <StackPanel Margin="20">
-            <TextBlock Text="Enter Category Name:" FontSize="16"/>
+            <TextBlock Text="Enter Category Name:" FontSize="16" FontFamily="Century Gothic"/>
             <TextBox Name="CategoryTextBox" Margin="0,5" Height="35" FontSize="22"/>
-            <Button Content="Add Category" Click="AddCategory_Click" Height="36"/>
+            <Button Content="Add Category" Click="AddCategory_Click" Height="36" FontFamily="Century Gothic"/>
         </StackPanel>
     </Grid>
 </Window>

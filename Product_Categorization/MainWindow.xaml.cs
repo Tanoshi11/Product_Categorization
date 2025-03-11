@@ -116,11 +116,16 @@ namespace Product_Categorization
         {
             if (lists_of_category.SelectedItem != null)
             {
-                string selectedCategory = lists_of_category.SelectedItem.ToString();
+                string selectedCategory = lists_of_category.SelectedItem.ToString().ToUpper(); // Convert to uppercase
                 selectedCategoryTextBlock.Text = selectedCategory; // Update TextBlock
+
+                selectedCategoryTextBlock.FontSize = 30; // Change font size dynamically
+
                 LoadItemsForSelectedCategory(); // Load items for the selected category
             }
         }
+
+
 
         private void list_of_items_on_category_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
