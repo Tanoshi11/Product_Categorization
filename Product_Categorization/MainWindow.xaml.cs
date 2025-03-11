@@ -1,25 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data.SqlClient;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.Data.SqlClient;
 
 namespace Product_Categorization
 {
     public partial class MainWindow : Window
     {
-        private readonly string connectionString = "Data Source=LAPTOP-CERQCNC0;Initial Catalog=ProductManagementDB;Integrated Security=True;Encrypt=True;Trust Server Certificate=True";
+        private readonly string connectionString = "Data Source=LAPTOP-CERQCNC0;Initial Catalog=ProductManagementDB;Integrated Security=True;";
+
+        public ObservableCollection<string> Categories { get; set; } = new ObservableCollection<string>();
+        public ObservableCollection<Item> Items { get; set; } = new ObservableCollection<Item>();
 
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = this; // Set DataContext for Binding
             LoadCategories();
         }
 
         private void LoadCategories()
         {
-            lists_of_category.Items.Clear(); // Clear existing items
-
+            Categories.Clear();
             try
             {
                 using (SqlConnection conn = new SqlConnection(connectionString))
@@ -32,7 +36,7 @@ namespace Product_Categorization
                     {
                         while (reader.Read())
                         {
-                            lists_of_category.Items.Add(reader["Category_Name"].ToString());
+                            Categories.Add(reader["Category_Name"].ToString());
                         }
                     }
                 }
@@ -43,109 +47,68 @@ namespace Product_Categorization
             }
         }
 
-        private void add_category_Click(object sender, RoutedEventArgs e)
-        {
-            AddCategoryWindow addCategoryWindow = new AddCategoryWindow();
-            addCategoryWindow.ShowDialog(); // Open window and wait for it to close
-
-            if (addCategoryWindow.CategoryAdded)
-            {
-                LoadCategories(); // Refresh category list
-            }
-        }
-
-        private void remove_category_Click(object sender, RoutedEventArgs e)
-        {
-            if (lists_of_category.SelectedItem != null)
-            {
-                string selectedCategory = lists_of_category.SelectedItem.ToString();
-
-                try
-                {
-                    using (SqlConnection conn = new SqlConnection(connectionString))
-                    {
-                        conn.Open();
-                        string query = "DELETE FROM Categories WHERE Category_Name = @CategoryName;";
-
-                        using (SqlCommand cmd = new SqlCommand(query, conn))
-                        {
-                            cmd.Parameters.AddWithValue("@CategoryName", selectedCategory);
-                            cmd.ExecuteNonQuery();
-                        }
-
-                        MessageBox.Show("Category Removed Successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                        LoadCategories(); // Refresh category list
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error removing category: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-            else
-            {
-                MessageBox.Show("Please select a category to remove.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-        }
-
-        private void add_item_Click(object sender, RoutedEventArgs e)
-        {
-            AddItemWindow addItemWindow = new AddItemWindow();
-            addItemWindow.ShowDialog();
-
-            if (addItemWindow.ItemAdded)
-            {
-                // Optionally refresh the item list or perform other actions
-                LoadItemsForSelectedCategory();
-            }
-        }
-
-        private void remove_item_Click(object sender, RoutedEventArgs e)
-        {
-            RemoveItemWindow removeItemWindow = new RemoveItemWindow();
-            removeItemWindow.ShowDialog();
-
-            if (removeItemWindow.ItemRemoved)
-            {
-                // Optionally refresh the item list or perform other actions
-                LoadItemsForSelectedCategory();
-            }
-        }
-
         private void lists_of_category_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (lists_of_category.SelectedItem != null)
             {
                 string selectedCategory = lists_of_category.SelectedItem.ToString().ToUpper(); // Convert to uppercase
-                selectedCategoryTextBlock.Text = selectedCategory; // Update TextBlock
 
-                selectedCategoryTextBlock.FontSize = 30; // Change font size dynamically
+                // Define max character count per line (approximate)
+                int maxCharsPerLine = 14;
 
-                LoadItemsForSelectedCategory(); // Load items for the selected category
+                // Split by words for proper wrapping
+                string[] words = selectedCategory.Split(' ');
+                StringBuilder firstLine = new StringBuilder();
+                StringBuilder secondLine = new StringBuilder();
+                int charCount = 0;
+
+                foreach (string word in words)
+                {
+                    if (charCount + word.Length <= maxCharsPerLine || firstLine.Length == 0)
+                    {
+                        firstLine.Append((firstLine.Length > 0 ? " " : "") + word);
+                        charCount += word.Length + 1;
+                    }
+                    else
+                    {
+                        secondLine.Append((secondLine.Length > 0 ? " " : "") + word);
+                    }
+                }
+
+                if (secondLine.Length > 0)
+                {
+                    selectedCategoryTextBlock.Text = firstLine + "\n" + secondLine;
+                    selectedCategoryTextBlock.Margin = new Thickness(366, 60, 0, 0); // Move up a bit
+                    selectedCategoryTextBlock.FontSize = 22; // Reduce font size slightly
+                }
+                else
+                {
+                    selectedCategoryTextBlock.Text = selectedCategory;
+                    selectedCategoryTextBlock.Margin = new Thickness(366, 79, 0, 0); // Default position
+                    selectedCategoryTextBlock.FontSize = 26; // Default size
+                }
+
+                LoadItemsForSelectedCategory(selectedCategory);
             }
         }
 
 
 
-        private void list_of_items_on_category_SelectionChanged(object sender, SelectionChangedEventArgs e)
+
+        public void LoadItemsForSelectedCategory(string selectedCategory)
         {
-            // Handle item selection change here (if needed)
-        }
-
-        private void LoadItemsForSelectedCategory()
-        {
-            if (lists_of_category.SelectedItem == null)
-                return;
-
-            string selectedCategory = lists_of_category.SelectedItem.ToString();
-            list_of_items_on_category.Items.Clear();
-
+            Items.Clear();
             try
             {
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
-                    string query = "SELECT Item_Name, Description FROM Items WHERE Category_Name = @CategoryName;";
+                    string query = @"
+                        SELECT i.Item_ID, i.Item_Name, i.Description
+                        FROM Items i
+                        INNER JOIN ItemCategories ic ON i.Item_ID = ic.Item_ID
+                        INNER JOIN Categories c ON ic.Category_ID = c.Category_ID
+                        WHERE c.Category_Name = @CategoryName;";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
@@ -154,9 +117,10 @@ namespace Product_Categorization
                         {
                             while (reader.Read())
                             {
-                                list_of_items_on_category.Items.Add(new
+                                Items.Add(new Item
                                 {
-                                    Name = reader["Item_Name"].ToString(),
+                                    ItemID = Convert.ToInt32(reader["Item_ID"]),
+                                    ItemName = reader["Item_Name"].ToString(),
                                     Description = reader["Description"].ToString()
                                 });
                             }
@@ -167,6 +131,105 @@ namespace Product_Categorization
             catch (Exception ex)
             {
                 MessageBox.Show("Error loading items: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void add_category_Click(object sender, RoutedEventArgs e)
+        {
+            AddCategoryWindow addCategoryWindow = new AddCategoryWindow();
+            addCategoryWindow.ShowDialog();
+            if (addCategoryWindow.CategoryAdded)
+            {
+                LoadCategories();
+            }
+        }
+
+        private void remove_category_Click(object sender, RoutedEventArgs e)
+        {
+            if (lists_of_category.SelectedItem != null)
+            {
+                string selectedCategory = lists_of_category.SelectedItem.ToString();
+
+                MessageBoxResult result = MessageBox.Show(
+                    $"Are you sure you want to delete the category '{selectedCategory}'? All associated items will also be removed.",
+                    "Confirmation",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        using (SqlConnection conn = new SqlConnection(connectionString))
+                        {
+                            conn.Open();
+
+                            string deleteItemsQuery = "DELETE FROM ItemCategories WHERE Category_ID = (SELECT Category_ID FROM Categories WHERE Category_Name = @CategoryName);";
+                            using (SqlCommand deleteItemsCmd = new SqlCommand(deleteItemsQuery, conn))
+                            {
+                                deleteItemsCmd.Parameters.AddWithValue("@CategoryName", selectedCategory);
+                                deleteItemsCmd.ExecuteNonQuery();
+                            }
+
+                            string deleteCategoryQuery = "DELETE FROM Categories WHERE Category_Name = @CategoryName;";
+                            using (SqlCommand deleteCategoryCmd = new SqlCommand(deleteCategoryQuery, conn))
+                            {
+                                deleteCategoryCmd.Parameters.AddWithValue("@CategoryName", selectedCategory);
+                                deleteCategoryCmd.ExecuteNonQuery();
+                            }
+
+                            MessageBox.Show("Category deleted successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                            LoadCategories();
+                            Items.Clear();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error removing category: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please select a category to remove.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void add_item_Click(object sender, RoutedEventArgs e)
+        {
+            if (lists_of_category.SelectedItem != null)
+            {
+                string selectedCategory = lists_of_category.SelectedItem.ToString();
+                AddItemWindow addItemWindow = new AddItemWindow(selectedCategory);
+                addItemWindow.ShowDialog();
+
+                if (addItemWindow.ItemAdded)
+                {
+                    LoadItemsForSelectedCategory(selectedCategory);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please select a category to add an item to.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void remove_item_Click(object sender, RoutedEventArgs e)
+        {
+            if (lists_of_category.SelectedItem != null)
+            {
+                string selectedCategory = lists_of_category.SelectedItem.ToString();
+                RemoveItemWindow removeItemWindow = new RemoveItemWindow(selectedCategory);
+                removeItemWindow.ShowDialog();
+
+                if (removeItemWindow.ItemRemoved)
+                {
+                    LoadItemsForSelectedCategory(selectedCategory);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please select a category to remove an item from.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
     }

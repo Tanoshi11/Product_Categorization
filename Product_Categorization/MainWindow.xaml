@@ -29,9 +29,7 @@
                             <!-- Hover Effect -->
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="border" Property="Background" Value="#f0f1f2"/>
-                                <!-- Light Blue -->
                                 <Setter TargetName="border" Property="BorderBrush" Value="LightGray"/>
-                                <!-- Darker Blue -->
                                 <Setter Property="Foreground" Value="Black"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -39,11 +37,9 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        </Window.Resources>
+    </Window.Resources>
 
-
-
-        <Grid Background="#FF9E9E9E">
+    <Grid Background="#FF9E9E9E">
         <!-- Left Panel for Categories -->
         <Rectangle x:Name="category_filter_container" HorizontalAlignment="Left" Height="628" Margin="28,0,0,0" VerticalAlignment="Center" Width="297" Fill="#FFEDEDED" Stroke="#FFE2DEDE"/>
 
@@ -60,36 +56,61 @@
             </Button.Effect>
         </Button>
 
-        <ListBox Name="lists_of_category" Foreground="Black" Margin="46,173,0,64" 
-                 HorizontalAlignment="Left" Width="261" FontSize="20" 
+        <ListBox Name="lists_of_category" ItemsSource="{Binding Categories}" Foreground="Black" Margin="46,173,0,64" 
+                 HorizontalAlignment="Left" Width="261" FontSize="18" 
                  Background="White" SelectionChanged="lists_of_category_SelectionChanged" BorderBrush="#FF9B9DA1" FontFamily="Century Gothic"/>
 
         <!-- Right Panel for Items -->
         <Rectangle HorizontalAlignment="Left" Height="628" Stroke="#FFE2DEDE" VerticalAlignment="Center" Width="606" Margin="340,0,0,0" Fill="#FFEDEDED"/>
 
         <TextBlock x:Name="selectedCategoryTextBlock" HorizontalAlignment="Left" Margin="366,79,0,0" 
-                   TextWrapping="Wrap" VerticalAlignment="Top" Height="42" Width="285" 
+                   TextWrapping="Wrap" VerticalAlignment="Top" Height="159" Width="285" 
                    TextAlignment="Center" FontWeight="Bold" FontSize="26" Text="&lt;SELECT CATEGORY&gt;" FontFamily="Century Gothic"/>
 
-        <Button x:Name="add_item" Content="ADD ITEM" HorizontalAlignment="Left" Margin="650,77,0,0" VerticalAlignment="Top" Height="40" Width="125" Click="add_item_Click" Foreground="#FFA0D94E" FontWeight="Bold" Background="White" Style="{StaticResource RoundedButton}" BorderBrush="#FFC5C5C5" FontSize="13" FontFamily="Century Gothic">
+        <Button x:Name="add_item" Content="ADD ITEM" HorizontalAlignment="Left" Margin="650,75,0,0" VerticalAlignment="Top" Height="40" Width="125" Click="add_item_Click" Foreground="#FFA0D94E" FontWeight="Bold" Background="White" Style="{StaticResource RoundedButton}" BorderBrush="#FFC5C5C5" FontSize="13" FontFamily="Century Gothic">
             <Button.Effect>
                 <DropShadowEffect/>
             </Button.Effect>
         </Button>
-        <Button x:Name="remove_item" Content="REMOVE ITEM" HorizontalAlignment="Left" Margin="789,77,0,0" VerticalAlignment="Top" Height="40" Width="125" Click="remove_item_Click" Background="White" Foreground="#FFF16767" FontWeight="Bold" FontSize="13" Style="{StaticResource RoundedButton}" BorderBrush="#FFC5C5C5" FontFamily="Century Gothic">
+        <Button x:Name="remove_item" Content="REMOVE ITEM" HorizontalAlignment="Left" Margin="789,75,0,0" VerticalAlignment="Top" Height="40" Width="125" Click="remove_item_Click" Background="White" Foreground="#FFF16767" FontWeight="Bold" FontSize="13" Style="{StaticResource RoundedButton}" BorderBrush="#FFC5C5C5" FontFamily="Century Gothic">
             <Button.Effect>
                 <DropShadowEffect/>
             </Button.Effect>
         </Button>
 
-        <ListView x:Name="list_of_items_on_category" Margin="370,128,50,62" SelectionChanged="list_of_items_on_category_SelectionChanged" FontSize="20" Foreground="#FFC9CDD9" FontFamily="Century Gothic">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="ID" DisplayMemberBinding="{Binding Name}" Width="70"/>
-                    <GridViewColumn Header="Item Name" DisplayMemberBinding="{Binding Name}" Width="210"/>
-                    <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}" Width="280"/>
-                </GridView>
-            </ListView.View>
-        </ListView>
+        <DataGrid x:Name="list_of_items_on_category" 
+          ItemsSource="{Binding Items}" 
+          AutoGenerateColumns="False"
+          Margin="370,128,50,62"
+          FontSize="14"
+          HeadersVisibility="Column"
+          GridLinesVisibility="All"
+          CanUserAddRows="False"
+          FontFamily="Century Gothic"
+          BorderBrush="Gray" BorderThickness="1"
+          RowHeight="40"
+        
+            VerticalScrollBarVisibility="Auto">
+            <!-- Enable vertical scrolling -->
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding ItemID}" Width="80" />
+                <DataGridTextColumn Header="Item Name" Binding="{Binding ItemName}" Width="2*">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="TextWrapping" Value="Wrap" />
+                            <!-- Enable text wrapping -->
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="2*">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="TextWrapping" Value="Wrap" />
+                            <!-- Enable text wrapping -->
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Window>
