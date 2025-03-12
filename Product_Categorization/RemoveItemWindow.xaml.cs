@@ -83,17 +83,19 @@ namespace Product_Categorization
                 {
                     conn.Open();
                     string query = @"
-                        SELECT i.Item_ID, i.Item_Name, i.Description
-                        FROM Items i
-                        INNER JOIN ItemCategories ic ON i.Item_ID = ic.Item_ID
-                        INNER JOIN Categories c ON ic.Category_ID = c.Category_ID
-                        WHERE c.Category_Name = @CategoryName;";
+                SELECT i.Item_ID, i.Item_Name, i.Description
+                FROM Items i
+                INNER JOIN ItemCategories ic ON i.Item_ID = ic.Item_ID
+                INNER JOIN Categories c ON ic.Category_ID = c.Category_ID
+                WHERE c.Category_Name = @CategoryName;";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("@CategoryName", selectedCategory);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
+                            int itemCount = 0; // Counter for items
+
                             while (reader.Read())
                             {
                                 AvailableItems.Add(new Item
@@ -102,7 +104,11 @@ namespace Product_Categorization
                                     ItemName = reader["Item_Name"].ToString(),
                                     Description = reader["Description"].ToString()
                                 });
+                                itemCount++; // Increment counter
                             }
+
+                            // Update item count display
+                            UpdateItemCount(itemCount);
                         }
                     }
                 }
@@ -117,6 +123,12 @@ namespace Product_Categorization
             }
         }
 
+        private void UpdateItemCount(int count)
+        {
+            ItemCountTextBlock.Text = $"Item Count: {count}";
+        }
+
+
         private void RemoveButton_Click(object sender, RoutedEventArgs e)
         {
             if (SearchResultsDataGrid.SelectedItem is Item selectedItem)
@@ -127,19 +139,17 @@ namespace Product_Categorization
                     {
                         conn.Open();
 
-                        // Check if the item exists in the category
                         if (!ItemExistsInCategory(conn, selectedItem.ItemID, selectedCategory))
                         {
                             MessageBox.Show("This item is not in the selected category.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                             return;
                         }
 
-                        // Remove the item from the category
                         if (RemoveItemFromCategory(conn, selectedItem.ItemID, selectedCategory))
                         {
                             MessageBox.Show("Item removed successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                             ItemRemoved = true;
-                            Close();
+                            LoadAvailableItems(); // Reload items
                         }
                         else
                         {
@@ -161,6 +171,7 @@ namespace Product_Categorization
                 MessageBox.Show("Please select an item to remove.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
+
 
         private bool ItemExistsInCategory(SqlConnection conn, int itemId, string categoryName)
         {

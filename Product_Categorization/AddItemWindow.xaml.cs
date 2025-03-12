@@ -82,15 +82,17 @@ namespace Product_Categorization
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
+
+                    // Query to fetch available items
                     string query = @"
-                        SELECT i.Item_ID, i.Item_Name, i.Description
-                        FROM Items i
-                        WHERE i.Item_ID NOT IN (
-                            SELECT ic.Item_ID
-                            FROM ItemCategories ic
-                            INNER JOIN Categories c ON ic.Category_ID = c.Category_ID
-                            WHERE c.Category_Name = @CategoryName
-                        );";
+                SELECT i.Item_ID, i.Item_Name, i.Description
+                FROM Items i
+                WHERE i.Item_ID NOT IN (
+                    SELECT ic.Item_ID
+                    FROM ItemCategories ic
+                    INNER JOIN Categories c ON ic.Category_ID = c.Category_ID
+                    WHERE c.Category_Name = @CategoryName
+                );";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
@@ -108,6 +110,9 @@ namespace Product_Categorization
                             }
                         }
                     }
+
+                    // Update the count of items already added to this category
+                    UpdateItemCount(conn);
                 }
             }
             catch (SqlException ex)
@@ -120,6 +125,23 @@ namespace Product_Categorization
             }
         }
 
+        private void UpdateItemCount(SqlConnection conn)
+        {
+            string countQuery = @"
+        SELECT COUNT(*)
+        FROM ItemCategories ic
+        INNER JOIN Categories c ON ic.Category_ID = c.Category_ID
+        WHERE c.Category_Name = @CategoryName;";
+
+            using (SqlCommand cmd = new SqlCommand(countQuery, conn))
+            {
+                cmd.Parameters.AddWithValue("@CategoryName", selectedCategory);
+                int itemCount = (int)cmd.ExecuteScalar();
+                ItemsAddedCountText.Text = $"Item Count: {itemCount}";
+            }
+        }
+
+
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
             if (SearchResultsDataGrid.SelectedItem is Item selectedItem)
@@ -130,29 +152,25 @@ namespace Product_Categorization
                     {
                         conn.Open();
 
-                        // Check if the item is already in the category
                         if (ItemExistsInCategory(conn, selectedItem.ItemID, selectedCategory))
                         {
                             MessageBox.Show("This item is already in the selected category.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                             return;
                         }
 
-                        // Add the item to the category
                         if (AddItemToCategory(conn, selectedItem.ItemID, selectedCategory))
                         {
                             MessageBox.Show("Item added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                            ItemAdded = true;
-                            Close();
+
+                            LoadAvailableItems();  // Refresh the DataGrid
+                            AvailableItemsView.Refresh();
+                            UpdateItemCount(conn);  // Refresh the item count
                         }
                         else
                         {
                             MessageBox.Show("Failed to add item.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                     }
-                }
-                catch (SqlException ex)
-                {
-                    MessageBox.Show("Database error while adding item: " + ex.Message, "SQL Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 catch (Exception ex)
                 {
@@ -164,6 +182,7 @@ namespace Product_Categorization
                 MessageBox.Show("Please select an item to add.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
+
 
         private bool ItemExistsInCategory(SqlConnection conn, int itemId, string categoryName)
         {

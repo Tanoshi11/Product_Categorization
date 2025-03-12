@@ -70,7 +70,7 @@
                    FontWeight="Bold"
                    HorizontalAlignment="Left"
                    VerticalAlignment="Top"
-                   Margin="27,74,0,0"/>
+                   Margin="27,74,0,0" FontFamily="Century Gothic"/>
 
         <!-- Watermark + Search TextBox in a mini-Grid for overlay -->
         <Grid HorizontalAlignment="Left"
@@ -141,7 +141,7 @@
                    FontWeight="Bold"
                    HorizontalAlignment="Right"
                    VerticalAlignment="Top"
-                   Margin="0,74,169,0"/>
+                   Margin="0,74,169,0" FontFamily="Century Gothic"/>
 
         <!-- Description TextBox -->
         <TextBox x:Name="itemDescriptionTextBlock"
@@ -156,7 +156,7 @@
                  VerticalAlignment="Top"
                  Margin="0,100,20,0"
                  Width="235"
-                 Height="261"/>
+                 Height="237"/>
 
         <!-- Buttons -->
         <Grid HorizontalAlignment="Right"
@@ -185,6 +185,14 @@
             Click="CancelButton_Click"
             Grid.Column="2"/>
         </Grid>
+        <TextBlock x:Name="ItemsAddedCountText"
+           FontSize="14"
+           FontWeight="Bold"
+           HorizontalAlignment="Right"
+           VerticalAlignment="Top"
+           Margin="0,342,21,0"
+           Text="Items Count: 0" FontFamily="Century Gothic" Width="97"/>
+
 
 
     </Grid>

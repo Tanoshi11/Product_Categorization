@@ -150,7 +150,7 @@
                  VerticalAlignment="Top"
                  Margin="0,100,20,0"
                  Width="235"
-                 Height="261"/>
+                 Height="237"/>
 
         <!-- Buttons -->
         <Grid HorizontalAlignment="Right"
@@ -179,6 +179,14 @@
             Click="CancelButton_Click"
             Grid.Column="2"/>
         </Grid>
+        <TextBlock x:Name="ItemCountTextBlock"
+       Text="Item Count: 0"
+       FontSize="14"
+       FontWeight="Bold"
+       HorizontalAlignment="Left"
+       VerticalAlignment="Top"
+       Margin="428,342,0,0" FontFamily="Century Gothic" RenderTransformOrigin="0.508,1.457" Width="112"/>
+
 
 
     </Grid>

@@ -92,23 +92,21 @@ namespace Product_Categorization
             }
         }
 
-
-
-
         public void LoadItemsForSelectedCategory(string selectedCategory)
         {
-            Items.Clear();
+            Items.Clear(); // Clear ListView items before loading new data
+
             try
             {
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
                     string query = @"
-                        SELECT i.Item_ID, i.Item_Name, i.Description
-                        FROM Items i
-                        INNER JOIN ItemCategories ic ON i.Item_ID = ic.Item_ID
-                        INNER JOIN Categories c ON ic.Category_ID = c.Category_ID
-                        WHERE c.Category_Name = @CategoryName;";
+                SELECT i.Item_ID, i.Item_Name, i.Description
+                FROM Items i
+                INNER JOIN ItemCategories ic ON i.Item_ID = ic.Item_ID
+                INNER JOIN Categories c ON ic.Category_ID = c.Category_ID
+                WHERE c.Category_Name = @CategoryName;";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
@@ -133,6 +131,7 @@ namespace Product_Categorization
                 MessageBox.Show("Error loading items: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
 
         private void add_category_Click(object sender, RoutedEventArgs e)
         {
@@ -203,10 +202,8 @@ namespace Product_Categorization
                 AddItemWindow addItemWindow = new AddItemWindow(selectedCategory);
                 addItemWindow.ShowDialog();
 
-                if (addItemWindow.ItemAdded)
-                {
-                    LoadItemsForSelectedCategory(selectedCategory);
-                }
+                // Refresh ListView
+                LoadItemsForSelectedCategory(selectedCategory);
             }
             else
             {
@@ -222,15 +219,14 @@ namespace Product_Categorization
                 RemoveItemWindow removeItemWindow = new RemoveItemWindow(selectedCategory);
                 removeItemWindow.ShowDialog();
 
-                if (removeItemWindow.ItemRemoved)
-                {
-                    LoadItemsForSelectedCategory(selectedCategory);
-                }
+                // Refresh ListView
+                LoadItemsForSelectedCategory(selectedCategory);
             }
             else
             {
                 MessageBox.Show("Please select a category to remove an item from.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
+
     }
 }
