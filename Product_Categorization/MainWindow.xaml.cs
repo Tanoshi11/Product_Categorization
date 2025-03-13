@@ -180,6 +180,9 @@ namespace Product_Categorization
                             MessageBox.Show("Category deleted successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                             LoadCategories();
                             Items.Clear();
+                            selectedCategoryTextBlock.Text = "<SELECT CATEGORY>"; // Reset text block
+                            selectedCategoryTextBlock.Margin = new Thickness(366, 79, 0, 0); // Default position
+                            selectedCategoryTextBlock.FontSize = 26; // Default size
                         }
                     }
                     catch (Exception ex)

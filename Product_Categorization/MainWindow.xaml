@@ -89,6 +89,7 @@
           FontFamily="Century Gothic"
           BorderBrush="Gray" BorderThickness="1"
           RowHeight="40"
+          IsReadOnly="True"
         
             VerticalScrollBarVisibility="Auto">
             <!-- Enable vertical scrolling -->
